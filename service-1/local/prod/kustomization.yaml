@@ -25,4 +25,4 @@ patches:
 images:
   - name: service-1
     newName: ghcr.io/mhonnczedz1/service-1
-    newTag: 26W40B3
+    newTag: 26W43B3
