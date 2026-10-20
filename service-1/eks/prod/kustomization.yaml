@@ -1,0 +1,28 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+# Injected into every resource the base produces.
+namespace: platform-prod
+resources:
+  - ../../base
+# Behaviour this environment opts into, from the platform's template repository,
+# pinned to a tag. Changing ?ref= is how this environment takes a new version.
+components:
+  - https://github.com/mhonnczedz1/lfi-service-templates//components/canary-manual-gate?ref=v1.0.0
+patches:
+  # The base Ingress deliberately has no host, so it matches any Host header.
+  # Two of those would collide in one cluster, so each environment adds its own.
+  # A component cannot take a parameter, so this stays here, in the team's file.
+  # JSON6902, because Ingress `rules` is a list with no merge key and a strategic
+  # merge would replace the whole list.
+  - target:
+      kind: Ingress
+    patch: |-
+      - op: add
+        path: /spec/rules/0/host
+        value: prod.eks.test
+# The FULL image reference lives here, newName and newTag together. This newTag
+# field is the only thing this service's CI ever writes.
+images:
+  - name: service-1
+    newName: ghcr.io/mhonnczedz1/service-1
+    newTag: 26W40B3
